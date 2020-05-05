@@ -1,65 +1,43 @@
-import React, { useContext, useEffect } from 'react'
-import { AppBar, Toolbar, Typography, Box, LinearProgress } from '@material-ui/core'
-import { GlobalContext } from '../context/GlobalState'
+import React, { useContext } from 'react';
+import { AppBar, Toolbar, Typography, Box, makeStyles } from '@material-ui/core';
+import { GlobalContext } from '../context/GlobalState';
 
-const StateBar = ({ timeleft }) => {
-	const { questionIndex, totalPoints, timesLeft, handleTime, timeIsOut, userAnswer } = useContext(
-		GlobalContext
-	)
+const useStyles = makeStyles({
+	stateBarText: {
+		textAlign: 'center',
+		paddingRight: '0.5rem',
+		paddingLeft: '0.5rem',
+		marginRight: '1rem',
+		fontSize: '1rem'
+	},
+	toolBar: { justifyContent: 'space-between', opacity: 0.8 }
+});
 
-	useEffect(() => {
-		timesLeft === 0
-			? timeIsOut()
-			: !userAnswer &&
-			  setTimeout(() => {
-					handleTime()
-			  }, 1000)
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [timesLeft])
+const StateBar = ({ countdown }) => {
+	const classes = useStyles();
+	const { questionIndex, totalPoints } = useContext(GlobalContext);
 
 	return (
 		<AppBar position="static">
-			<Toolbar
-				component={Box}
-				mx={1}
-				style={{ justifyContent: 'space-between', opacity: 0.8 }}>
+			<Toolbar component={Box} mx={1} className={classes.toolBar}>
 				{/* question index */}
 				<Typography
 					variant="body2"
+					className={classes.stateBarText}
 					style={{
-						textAlign: 'center',
-						paddingRight: '0.5rem',
-						paddingLeft: '0.5rem',
-						marginRight: '1rem'
+						fontSize: '1rem'
 					}}>
 					Question {questionIndex + 1}/10
 				</Typography>
 				{/* total points */}
-				<Typography
-					variant="h6"
-					style={{
-						textAlign: 'center',
-						paddingRight: '0.5rem',
-						paddingLeft: '0.5rem',
-						marginRight: '1rem'
-					}}>
+				<Typography variant="h6" className={classes.stateBarText}>
 					{totalPoints} Points
 				</Typography>
 				{/* times left */}
-				<Typography
-					variant="body2"
-					style={{ textAlign: 'center', paddingRight: '0.5rem', paddingLeft: '0.5rem' }}>
-					Remaining Time: {timesLeft}
-				</Typography>
+				{countdown}
 			</Toolbar>
-			<LinearProgress
-				variant="determinate"
-				value={(timesLeft * 100) / 15}
-				color="secondary"
-			/>
 		</AppBar>
-	)
-}
+	);
+};
 
-export default StateBar
+export default StateBar;

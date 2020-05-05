@@ -1,10 +1,10 @@
-import React from 'react'
-import { BrowserRouter, Route, Switch } from 'react-router-dom'
-import { createMuiTheme, ThemeProvider } from '@material-ui/core'
-import './App.css'
-import WelcomePage from './components/views/WelcomePage/WelcomePage'
-import MainPage from './components/views/MainPage/MainPage'
-import { GlobalProvider } from './context/GlobalState'
+import React from 'react';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { createMuiTheme, ThemeProvider } from '@material-ui/core';
+import './App.css';
+import WelcomePage from './components/views/WelcomePage/WelcomePage';
+import MainPage from './components/views/MainPage/MainPage';
+import { GlobalProvider } from './context/GlobalState';
 
 const theme = createMuiTheme({
 	palette: {
@@ -13,7 +13,6 @@ const theme = createMuiTheme({
 		}
 	},
 	typography: {
-		fontFamily: ['Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'].join(','),
 		button: {
 			fontWeight: '600'
 		},
@@ -32,7 +31,7 @@ const theme = createMuiTheme({
 			textTransform: 'uppercase'
 		}
 	}
-})
+});
 
 function App() {
 	return (
@@ -46,7 +45,7 @@ function App() {
 				</BrowserRouter>
 			</GlobalProvider>
 		</ThemeProvider>
-	)
+	);
 }
 
-export default App
+export default App;

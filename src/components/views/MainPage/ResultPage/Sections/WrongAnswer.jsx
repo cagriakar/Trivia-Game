@@ -1,11 +1,11 @@
-import React, { useContext } from 'react'
-import Lottie from 'react-lottie'
-import wrongLottie from '../../../../../assets/lottieFiles/wrong.json'
-import { Grid, Paper, Typography, Box, Fade, Divider } from '@material-ui/core'
-import { GlobalContext } from '../../../../../context/GlobalState'
+import React, { useContext } from 'react';
+import Lottie from 'react-lottie';
+import wrongLottie from '../../../../../assets/lottieFiles/wrong.json';
+import { Grid, Paper, Typography, Box, Fade, Divider } from '@material-ui/core';
+import { GlobalContext } from '../../../../../context/GlobalState';
 
 const WrongAnswer = () => {
-	const { totalPoints } = useContext(GlobalContext)
+	const { totalPoints } = useContext(GlobalContext);
 
 	const defaultOptions = {
 		loop: false,
@@ -14,7 +14,7 @@ const WrongAnswer = () => {
 		rendererSettings: {
 			preserveAspectRatio: 'xMidYMid slice'
 		}
-	}
+	};
 
 	return (
 		<Grid container component={Box} mt={2} justify="center">
@@ -27,18 +27,12 @@ const WrongAnswer = () => {
 					<Grid item container justify="center" style={{ marginBottom: '1rem' }}>
 						<Paper component={Box} p={2} style={{ flexGrow: '1' }}>
 							<Lottie options={defaultOptions} height={200} width={200} />
-							<Typography
-								variant="h6"
-								style={{ textAlign: 'center', marginBottom: '1rem' }}>
+							<Typography variant="h6" style={{ marginBottom: '1rem' }}>
 								Wrong
 							</Typography>
-							<Typography variant="subtitle1" style={{ textAlign: 'center' }}>
-								-
-							</Typography>
+							<Typography variant="subtitle1">-</Typography>
 							<Divider style={{ marginBottom: '1rem' }} />
-							<Typography variant="h6" style={{ textAlign: 'center' }}>
-								Total: {totalPoints} Points
-							</Typography>
+							<Typography variant="h6">Total: {totalPoints} Points</Typography>
 						</Paper>
 					</Grid>
 				</Grid>
@@ -48,7 +42,7 @@ const WrongAnswer = () => {
 			<Grid item xs={1} />
 			{/* for better margin control */}
 		</Grid>
-	)
-}
+	);
+};
 
-export default WrongAnswer
+export default WrongAnswer;

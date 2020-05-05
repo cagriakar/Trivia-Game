@@ -1,6 +1,6 @@
-export const difficulties = ['easy', 'medium', 'hard']
+export const difficulties = ['easy', 'medium', 'hard'];
 
-export const levelPoint = { easy: 15, medium: 30, hard: 60 }
+export const levelPoint = { easy: 15, medium: 30, hard: 60 };
 
 export const categories = [
 	{ value: 9, description: 'General Knowledge' },
@@ -27,4 +27,4 @@ export const categories = [
 	{ value: 30, description: 'Science: Gadgets' },
 	{ value: 31, description: 'Entertainment: Japanese Anime & Manga' },
 	{ value: 32, description: 'Entertainment: Cartoon & Animations' }
-]
+];

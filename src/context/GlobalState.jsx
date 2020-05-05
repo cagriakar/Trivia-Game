@@ -1,10 +1,11 @@
-import React, { createContext, useReducer } from 'react'
-import axios from 'axios'
+import React, { createContext, useReducer } from 'react';
+import axios from 'axios';
+import { defaultResponse } from '../assets/quests';
+import { levelPoint } from '../assets/selectionOption';
+import createRandomKeys from '../utils/createRandomKeys';
+import AppReducer from './reducer/AppReducer.jsx';
 
-import { levelPoint } from '../assets/selectionOption'
-import createRandomKeys from '../utils/createRandomKeys'
-
-import AppReducer from './reducer/AppReducer.jsx'
+const baseApiURL = 'https://opentdb.com/api.php?amount=10&type=multiple';
 
 // Initial State
 const initialState = {
@@ -12,141 +13,161 @@ const initialState = {
 	errorMessage: null,
 	questionIndex: 0,
 	userAnswer: null,
-	apiURL: 'https://opentdb.com/api.php?amount=10&type=multiple',
+	apiURL: baseApiURL,
 	loading: false,
 	gameStarted: false,
-	gameMode: 'easy',
+	gameCategory: null,
+	gameDifficulty: 'easy',
 	point: 15,
 	totalPoints: 0,
 	hasJoker: true,
 	disabledKeys: null,
 	timesLeft: 15,
 	isTimeOut: false
-}
+};
 
 // Create Context
-const GlobalContext = createContext(initialState)
+const GlobalContext = createContext(initialState);
 
 //Provider component
 function GlobalProvider(props) {
-	const [state, dispatch] = useReducer(AppReducer, initialState)
+	const [state, dispatch] = useReducer(AppReducer, initialState);
 
 	// Actions
-	function setGameMode(parameter) {
+	function setGameDifficulty(selectedDifficulty) {
 		dispatch({
-			type: 'SET_GAMEMODEPOINT',
-			payload: { gameModeChange: parameter, pointChange: levelPoint[`${parameter}`] }
-		})
+			type: 'SET_GAME_DIFFICULTY',
+			payload: {
+				gameDifficulty: selectedDifficulty,
+				point: levelPoint[`${selectedDifficulty}`]
+			}
+		});
 	}
 
-	function setApiURL(difficulty, category) {
-		const newURL = state.apiURL + '&category=' + category + '&difficulty=' + difficulty
+	function setGameCategory(selectedCategory) {
 		dispatch({
-			type: 'SET_APIURL',
-			payload: newURL
-		})
+			type: 'SET_GAME_CATEGORY',
+			payload: selectedCategory
+		});
 	}
 
 	function startGame() {
 		dispatch({
 			type: 'START_GAME',
 			payload: true
-		})
+		});
 	}
 
 	async function getQuestions() {
+		const apiURLParameters = {
+			params: {
+				category: state.gameCategory,
+				difficulty: state.gameDifficulty
+			}
+		};
+
 		try {
-			const apiResponse = await axios.get(state.apiURL)
+			const apiResponse = await axios.get(baseApiURL, apiURLParameters);
 
-			// using post response from axios
-			const response = await apiResponse.data
+			const response = await apiResponse.data;
 
-			const responseCode = await response.response_code
+			const responseCode = await response.response_code;
 
-			if (responseCode === 1) {
-				throw new Error()
+			if (responseCode !== 0) {
+				throw new Error();
 			}
 
-			const res = await response.results
+			const res = await response.results;
 
 			await res.reduce((answers, result, currentIndex, arr) => {
-				const { correct_answer, incorrect_answers } = result
+				const { correct_answer, incorrect_answers } = result;
 
-				answers = [...incorrect_answers, correct_answer].sort(() => Math.random() - 0.5)
+				answers = [...incorrect_answers, correct_answer].sort(() => Math.random() - 0.5);
+				arr[currentIndex] = { ...arr[currentIndex], answers };
 
-				arr[currentIndex] = { ...arr[currentIndex], answers }
-
-				return arr
-			}, [])
+				return arr;
+			}, []);
 			dispatch({
 				type: 'GET_QUESTIONS',
 				payload: res
-			})
+			});
 		} catch (err) {
+			//as of 05.05.2020 there is no response from API, if so use defaultAnswers
+			if (err.message === 'Network Error') {
+				const res = defaultResponse.results;
+
+				res.reduce((answers, result, currentIndex, arr) => {
+					const { correct_answer, incorrect_answers } = result;
+
+					answers = [...incorrect_answers, correct_answer].sort(
+						() => Math.random() - 0.5
+					);
+					arr[currentIndex] = { ...arr[currentIndex], answers };
+
+					return arr;
+				}, []);
+				dispatch({
+					type: 'GET_QUESTIONS',
+					payload: res
+				});
+				return;
+			}
+
 			const errorMessages = [
 				'Oops...',
-				'Looks like there is not enough questions in Server for your selected category and difficulty',
+				'Looks like there is an error',
 				'Please try re-organize your selections'
-			]
+			];
 			dispatch({
 				type: 'API_ERROR',
 				payload: errorMessages
-			})
+			});
 		}
 	}
 
 	function handleJoker() {
-		const { answers, correct_answer } = state.questions[state.questionIndex]
-
-		const correctAnswerIndex = answers.indexOf(correct_answer)
-
-		const jokerKeys = createRandomKeys(4, correctAnswerIndex)
+		// desructuring for easy reference
+		const { answers, correct_answer } = state.questions[state.questionIndex];
+		// find the correct answer index
+		const correctAnswerIndex = answers.indexOf(correct_answer);
+		// create 2 random number with custom function: createRandomKeys()
+		const jokerKeys = createRandomKeys(4, correctAnswerIndex);
 
 		dispatch({
 			type: 'HANDLE_JOKER',
 			payload: { hasJoker: false, disabledKeys: jokerKeys }
-		})
+		});
 	}
 
-	function setUserAnswer(parameter) {
+	function setUserAnswer(givenAnswer) {
 		dispatch({
-			type: 'SET_USERANSWER',
-			payload: parameter
-		})
+			type: 'SET_USER_ANSWER',
+			payload: givenAnswer
+		});
 	}
 
 	function increaseQuestionIndex() {
-		const newIndex = state.questionIndex + 1
+		const newIndex = state.questionIndex + 1;
 
 		dispatch({
 			type: 'INCREASE_INDEX',
 			payload: newIndex
-		})
+		});
 	}
 
-	function increaseTotalPoints() {
-		//Problem here!!!!!!!!!!!!!
-		console.log(state.timesLeft)
-		const calculatedPoint = (state.point * (state.timesLeft - 1)) / state.point
-		console.log(calculatedPoint)
+	function increaseTotalPoints(timesRemaining) {
+		const calculatedPoint = (state.point * timesRemaining) / 15;
 		dispatch({
-			type: 'SET_TOTALPOINTS',
+			type: 'SET_TOTAL_POINTS',
 			payload: state.totalPoints + calculatedPoint
-		})
-	}
-
-	function handleTime() {
-		dispatch({
-			type: 'SET_TIME',
-			payload: state.timesLeft - 1
-		})
+		});
 	}
 
 	function timeIsOut() {
 		dispatch({
-			type: 'SET_TIMEISOUT',
+			type: 'SET_TIME_IS_OUT',
 			payload: true
-		})
+		});
 	}
 
 	return (
@@ -159,27 +180,26 @@ function GlobalProvider(props) {
 				userAnswer: state.userAnswer,
 				gameStarted: state.gameStarted,
 				loading: state.loading,
-				gameMode: state.gameMode,
+				gameCategory: state.gameCategory,
+				gameDifficulty: state.gameDifficulty,
 				point: state.point,
 				totalPoints: state.totalPoints,
 				hasJoker: state.hasJoker,
 				disabledKeys: state.disabledKeys,
-				timesLeft: state.timesLeft,
 				isTimeOut: state.isTimeOut,
 				handleJoker,
 				increaseTotalPoints,
 				getQuestions,
 				increaseQuestionIndex,
 				setUserAnswer,
-				setApiURL,
-				setGameMode,
+				setGameCategory,
+				setGameDifficulty,
 				startGame,
-				handleTime,
 				timeIsOut
 			}}>
 			{props.children}
 		</GlobalContext.Provider>
-	)
+	);
 }
 
-export { GlobalContext, GlobalProvider }
+export { GlobalContext, GlobalProvider };

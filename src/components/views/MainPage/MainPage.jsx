@@ -1,19 +1,29 @@
-import React, { useContext } from 'react'
-import Lottie from 'react-lottie'
-import covidLottie from '../../../assets/lottieFiles/covidLottie.json'
-import nextQuestionLottie from '../../../assets/lottieFiles/nextQuestionLottie.json'
-import { Grid, Typography } from '@material-ui/core'
-import ReplayIcon from '@material-ui/icons/Replay'
-import ReplyAllIcon from '@material-ui/icons/ReplyAll'
-import QuestionaireForm from './QuestionaireForm/QuestionaireForm'
-import StateBar from '../../StateBar'
-import Question from './Question/Question'
-import CustomButton from '../../CustomButton'
-import ResultPage from './ResultPage/ResultPage'
-import { GlobalContext } from '../../../context/GlobalState'
-import TimeOutPage from './TimeOutPage/TimeOutPage'
+import React, { useContext, useState, useRef } from 'react';
+import Lottie from 'react-lottie';
+import { CountdownCircleTimer } from 'react-countdown-circle-timer';
+import covidLottie from '../../../assets/lottieFiles/covidLottie.json';
+import nextQuestionLottie from '../../../assets/lottieFiles/nextQuestionLottie.json';
+import { Grid, Typography, Button, makeStyles } from '@material-ui/core';
+import ReplayIcon from '@material-ui/icons/Replay';
+import ReplyAllIcon from '@material-ui/icons/ReplyAll';
+import QuestionaireForm from './QuestionaireForm/QuestionaireForm';
+import StateBar from '../../StateBar';
+import Question from './Question/Question';
+import CustomButton from '../../CustomButton';
+import ResultPage from './ResultPage/ResultPage';
+import { GlobalContext } from '../../../context/GlobalState';
+import TimeOutPage from './TimeOutPage/TimeOutPage';
+
+const useStyles = makeStyles({
+	buttonText: {
+		width: '100%',
+		padding: '6px 16px'
+	},
+	lottieMargin: { margin: 'auto', marginBottom: '1rem', marginTop: '1rem', maxWidth: '800px' }
+});
 
 const MainPage = () => {
+	const classes = useStyles();
 	const {
 		userAnswer,
 		gameStarted,
@@ -21,8 +31,10 @@ const MainPage = () => {
 		hasJoker,
 		loading,
 		errorMessage,
-		isTimeOut
-	} = useContext(GlobalContext)
+		isTimeOut,
+		timeIsOut,
+		handleJoker
+	} = useContext(GlobalContext);
 
 	const defaultOptions1 = {
 		loop: true,
@@ -31,7 +43,7 @@ const MainPage = () => {
 		rendererSettings: {
 			preserveAspectRatio: 'xMidYMid slice'
 		}
-	}
+	};
 
 	const defaultOptions2 = {
 		loop: true,
@@ -40,15 +52,64 @@ const MainPage = () => {
 		rendererSettings: {
 			preserveAspectRatio: 'xMidYMid slice'
 		}
-	}
+	};
+
+	const countRef = useRef(null);
+	//part of 'react-countdown-circle-timer' package
+	const renderTime = ({ remainingTime }) => {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const currentTime = useRef(remainingTime);
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const prevTime = useRef(null);
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const isNewTimeFirstTick = useRef(false);
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const [, setOneLastRerender] = useState(0);
+
+		if (currentTime.current !== remainingTime) {
+			isNewTimeFirstTick.current = true;
+			prevTime.current = currentTime.current;
+			currentTime.current = remainingTime;
+		} else {
+			isNewTimeFirstTick.current = false;
+		}
+
+		// force one last re-render when the time is over to tirgger the last animation
+		if (remainingTime === 0) {
+			setTimeout(() => {
+				setOneLastRerender((val) => val + 1);
+			}, 20);
+		}
+
+		const isTimeUp = isNewTimeFirstTick.current;
+
+		return (
+			<div className="time-wrapper">
+				<div
+					key={remainingTime}
+					className={`time ${isTimeUp ? 'up' : ''}`}
+					ref={countRef}
+					id={remainingTime}>
+					{remainingTime}
+				</div>
+				{prevTime.current !== null && (
+					<div key={prevTime.current} className={`time ${!isTimeUp ? 'down' : ''}`}>
+						{prevTime.current}
+					</div>
+				)}
+			</div>
+		);
+	};
+
+	const handleClick = (event) => {
+		// handle joker usage
+		handleJoker();
+	};
 
 	return (
 		<Grid style={{ textAlign: 'center' }}>
 			{(loading || !gameStarted || errorMessage) && (
-				<Grid
-					container
-					justify="center"
-					style={{ marginBottom: '1rem', marginTop: '1rem' }}>
+				<Grid container justify="center" className={classes.lottieMargin}>
 					<Lottie options={defaultOptions2} height={50} width={100} />
 				</Grid>
 			)}
@@ -63,37 +124,46 @@ const MainPage = () => {
 					{/* bar to respresent some game statistics and time-left */}
 					{!loading && !errorMessage && (
 						<>
-							<StateBar component="nav"></StateBar>
+							<StateBar
+								component="nav"
+								countdown={
+									<CountdownCircleTimer
+										onComplete={() => {
+											timeIsOut();
+										}}
+										strokeWidth={6}
+										key={questionIndex}
+										size={60}
+										isPlaying={!userAnswer}
+										duration={15}
+										value={renderTime}
+										colors={[['#00FF00', 0.5], ['#F7B801', 0.4], ['#FF0000']]}>
+										{renderTime}
+									</CountdownCircleTimer>
+								}></StateBar>
 							<Grid
 								component="section"
 								container
 								justify={hasJoker && !userAnswer ? 'space-around' : 'center'}
 								alignItems="center"
-								style={{
-									maxWidth: '800px',
-									margin: 'auto',
-									marginTop: '1rem',
-									marginBottom: '1rem'
-								}}>
+								className={classes.lottieMargin}>
 								<Grid item>
 									<Lottie options={defaultOptions2} height={40} width={80} />
 								</Grid>
 								<Grid item>
 									{/* check some condition to show Joker Button */}
 									{!loading && !errorMessage && !userAnswer && hasJoker && (
-										<CustomButton
-											style={{ width: '50%' }}
-											buttontext={
-												<Typography
-													variant="button"
-													id="joker-button"
-													style={{
-														width: '100%',
-														padding: '6px 16px'
-													}}>
-													50:50
-												</Typography>
-											}></CustomButton>
+										<Button
+											onClick={handleClick}
+											variant="contained"
+											color="primary"
+											style={{ width: '50%' }}>
+											<Typography
+												variant="button"
+												className={classes.buttonText}>
+												50:50
+											</Typography>
+										</Button>
 									)}
 								</Grid>
 							</Grid>
@@ -108,7 +178,9 @@ const MainPage = () => {
 						<Question component="section"></Question>
 					) : (
 						/* render one of the result pages based on user's answer true or not*/
-						<ResultPage component="section"></ResultPage>
+						<ResultPage
+							component="section"
+							timesRemaining={countRef.current?.id}></ResultPage>
 					)}
 
 					{/* check if any error coming from API or user declared his answer */}
@@ -125,9 +197,7 @@ const MainPage = () => {
 								)
 							}
 							buttontext={
-								<Typography
-									variant="button"
-									style={{ width: '100%', padding: '6px 16px' }}>
+								<Typography variant="button" className={classes.buttonText}>
 									{/* check if any error coming from API or is it last question */}
 									{questionIndex === 9
 										? 'Play Again'
@@ -140,7 +210,7 @@ const MainPage = () => {
 				</>
 			)}
 		</Grid>
-	)
-}
+	);
+};
 
-export default MainPage
+export default MainPage;

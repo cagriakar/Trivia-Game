@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext } from 'react';
 import {
 	Grid,
 	Box,
@@ -16,58 +16,63 @@ import {
 	MenuItem,
 	Container,
 	Slide,
-	Divider
-} from '@material-ui/core'
-import { difficulties, categories } from '../../../../assets/selectionOption'
-import { GlobalContext } from '../../../../context/GlobalState'
+	Divider,
+	makeStyles
+} from '@material-ui/core';
+import { difficulties, categories } from '../../../../assets/selectionOption';
+import { GlobalContext } from '../../../../context/GlobalState';
+
+const useStyles = makeStyles({
+	textFontFamily: {
+		fontFamily: 'Rajdhani'
+	}
+});
 
 const QuestionaireForm = () => {
-	const { setApiURL, startGame, setGameMode } = useContext(GlobalContext)
+	const classes = useStyles();
 
-	// state: form selection difficulty
-	const [value, setValue] = useState('easy')
-
-	// state: form selection for category
-	const [category, setCategory] = useState('')
+	const {
+		gameCategory,
+		setGameCategory,
+		startGame,
+		gameDifficulty,
+		setGameDifficulty
+	} = useContext(GlobalContext);
 
 	// state: form validation error
-	const [error, setError] = useState(null)
+	const [error, setError] = useState(null);
 
 	// state: form validation error message
-	const [helperText, setHelperText] = useState('Required')
+	const [helperText, setHelperText] = useState('Required');
 
 	const handleRadioChange = (event) => {
-		// handle to send difficulty selection to GlobalContext
-		setValue(event.target.value)
 		// handle to send difficulty selection to GlobalContext in order for usage in PointSystem
-		setGameMode(event.target.value)
-	}
+		setGameDifficulty(event.target.value);
+	};
 
 	const handleSelection = (event) => {
 		// handle to send difficulty category to GlobalContext
-		setCategory(event.target.value)
+		setGameCategory(event.target.value);
 		// handle to change form validation error state
-		setError(false)
+		setError(false);
 		// handle to change form validation error message state
-		setHelperText(`Questions will be in above selected category`)
-	}
+		setHelperText(`Questions will be in above selected category`);
+	};
 
 	const handleSubmit = (event) => {
-		event.preventDefault()
+		event.preventDefault();
 		// check if category selection is valid
-		if (category) {
-			// handle to send URL to GlobalContext in order to use with API (state: creating the URL based on user's selection)
-			setApiURL(value, category)
+		if (gameCategory) {
 			// handle to start the game (state: just before to send a get request to API)
-			startGame()
+			startGame();
 		} else {
 			// category selection is invalid
 			// handle to change form validation error message state
-			setHelperText("Don't forget to choose a category")
+			setHelperText("Don't forget to choose a category");
 			// handle to change form validation error state
-			setError(true)
+			setError(true);
 		}
-	}
+	};
 
 	return (
 		<Grid container justify="center">
@@ -86,7 +91,7 @@ const QuestionaireForm = () => {
 										<FormLabel component="legend">
 											<Typography
 												variant="overline"
-												style={{ fontFamily: 'Rajdhani' }}>
+												className={classes.textFontFamily}>
 												Difficulty
 											</Typography>
 										</FormLabel>
@@ -95,7 +100,7 @@ const QuestionaireForm = () => {
 											row
 											aria-label="difficulty"
 											name="difficulty"
-											value={value}
+											value={gameDifficulty}
 											onChange={handleRadioChange}>
 											{difficulties.map((difficulty, index) => (
 												<FormControlLabel
@@ -104,15 +109,14 @@ const QuestionaireForm = () => {
 													control={<Radio />}
 													label={
 														<Typography
+															className={classes.textFontFamily}
 															style={{
-																fontFamily: 'Rajdhani',
 																fontSize: '20px'
 															}}>
 															{difficulty}
 														</Typography>
 													}
 													style={{
-														textTransform: 'capitalize',
 														marginLeft: '1rem'
 													}}
 												/>
@@ -120,6 +124,7 @@ const QuestionaireForm = () => {
 										</RadioGroup>
 									</FormControl>
 								</Container>
+
 								<Divider />
 								{/* category selection part of Form  */}
 								<Container>
@@ -128,9 +133,7 @@ const QuestionaireForm = () => {
 										<FormLabel component="legend">
 											<Typography
 												variant="subtitle1"
-												style={{
-													fontFamily: 'Rajdhani'
-												}}>
+												className={classes.textFontFamily}>
 												Select a Category
 											</Typography>
 										</FormLabel>
@@ -148,27 +151,20 @@ const QuestionaireForm = () => {
 											<Select
 												labelId="category"
 												id="category"
-												value={category}
+												value={gameCategory ? gameCategory : ''}
 												onChange={handleSelection}
 												label="category"
-												style={{
-													fontFamily: 'Rajdhani'
-												}}>
+												className={classes.textFontFamily}>
 												{categories.map((category, index) => (
 													<MenuItem
 														key={index}
 														value={category.value}
-														style={{
-															fontFamily: 'Rajdhani'
-														}}>
+														className={classes.textFontFamily}>
 														{category.description}
 													</MenuItem>
 												))}
 											</Select>
-											<FormHelperText
-												style={{
-													fontFamily: 'Rajdhani'
-												}}>
+											<FormHelperText className={classes.textFontFamily}>
 												{helperText}
 											</FormHelperText>
 										</FormControl>
@@ -190,14 +186,12 @@ const QuestionaireForm = () => {
 						type="submit"
 						form="questionare-form"
 						style={{ margin: 'auto', opacity: 0.8 }}>
-						<Typography variant="button" style={{ textAlign: 'center' }}>
-							Let's play
-						</Typography>
+						<Typography variant="button">Let's play</Typography>
 					</Button>
 				</Slide>
 			</Grid>
 		</Grid>
-	)
-}
+	);
+};
 
-export default QuestionaireForm
+export default QuestionaireForm;

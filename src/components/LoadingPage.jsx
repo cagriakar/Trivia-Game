@@ -1,7 +1,7 @@
-import React from 'react'
-import Lottie from 'react-lottie'
-import loadingLottie from '../assets/lottieFiles/loadingLottie.json'
-import { Grid, Box, Paper, Typography, Slide } from '@material-ui/core'
+import React from 'react';
+import Lottie from 'react-lottie';
+import loadingLottie from '../assets/lottieFiles/loadingLottie.json';
+import { Grid, Box, Paper, Typography, Slide } from '@material-ui/core';
 
 const LoadingPage = () => {
 	const defaultOptions = {
@@ -11,7 +11,7 @@ const LoadingPage = () => {
 		rendererSettings: {
 			preserveAspectRatio: 'xMidYMid slice'
 		}
-	}
+	};
 
 	return (
 		<Grid container justify="center">
@@ -30,7 +30,7 @@ const LoadingPage = () => {
 			</Slide>
 			<Grid item xs={1} />
 		</Grid>
-	)
-}
+	);
+};
 
-export default LoadingPage
+export default LoadingPage;

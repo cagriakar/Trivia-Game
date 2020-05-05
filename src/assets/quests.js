@@ -1,4 +1,4 @@
-export const response = {
+export const defaultResponse = {
 	response_code: 0,
 	results: [
 		{
@@ -85,4 +85,4 @@ export const response = {
 			incorrect_answers: ['Peter Benchley', 'Chuck Paluhniuk', 'Irvine Welsh']
 		}
 	]
-}
+};

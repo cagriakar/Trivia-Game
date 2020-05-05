@@ -1,11 +1,22 @@
-import React from 'react'
-import Lottie from 'react-lottie'
-import logoLottie from '../../../assets/lottieFiles/logoLottie.json'
-import covidLottie from '../../../assets/lottieFiles/covidLottie.json'
-import { Link } from 'react-router-dom'
-import { Grid, Box, Paper, Typography, Button, Slide, Grow } from '@material-ui/core'
+import React from 'react';
+import Lottie from 'react-lottie';
+import logoLottie from '../../../assets/lottieFiles/logoLottie.json';
+import covidLottie from '../../../assets/lottieFiles/covidLottie.json';
+import { Link } from 'react-router-dom';
+import { Grid, Box, Paper, Typography, Button, Slide, Grow, makeStyles } from '@material-ui/core';
+
+const useStyles = makeStyles({
+	boldText: {
+		textAlign: 'center',
+		fontFamily: 'Montserrat Subrayada',
+		color: 'dark blue'
+	},
+	lottieMargin: { marginBottom: '1rem', marginTop: '1rem' }
+});
 
 const WelcomePage = () => {
+	const classes = useStyles();
+
 	const defaultOptions = {
 		loop: true,
 		autoplay: true,
@@ -13,7 +24,7 @@ const WelcomePage = () => {
 		rendererSettings: {
 			preserveAspectRatio: 'xMidYMid slice'
 		}
-	}
+	};
 
 	const defaultOptions2 = {
 		loop: true,
@@ -22,7 +33,7 @@ const WelcomePage = () => {
 		rendererSettings: {
 			preserveAspectRatio: 'xMidYMid slice'
 		}
-	}
+	};
 
 	return (
 		<Grid container style={{ textAlign: 'center', opacity: 0.8 }} component="main">
@@ -31,7 +42,7 @@ const WelcomePage = () => {
 					component="section"
 					container
 					justify="center"
-					style={{ marginBottom: '1rem', marginTop: '1rem' }}>
+					className={classes.lottieMargin}>
 					<Lottie options={defaultOptions2} height={50} width={100} />
 				</Grid>
 			</Grow>
@@ -47,11 +58,7 @@ const WelcomePage = () => {
 								<Typography
 									id="bold-text"
 									variant="h5"
-									style={{
-										textAlign: 'center',
-										fontFamily: 'Montserrat Subrayada',
-										color: 'dark blue'
-									}}>
+									className={classes.boldText}>
 									TRIVIA GAME
 								</Typography>
 							</Paper>
@@ -63,17 +70,14 @@ const WelcomePage = () => {
 				{/* for better margin control */}
 			</Grid>
 			<Slide direction="up" in={true} timeout={1000}>
-				<Link
-					to="/trivia"
-					component={Button}
-					color="primary"
-					variant="contained"
-					style={{ margin: 'auto' }}>
-					Get Start!
-				</Link>
+				<Button color="primary" variant="contained" style={{ margin: 'auto' }}>
+					<Link to="/trivia" style={{ textDecoration: 'none', color: 'white' }}>
+						Get Start!
+					</Link>
+				</Button>
 			</Slide>
 		</Grid>
-	)
-}
+	);
+};
 
-export default WelcomePage
+export default WelcomePage;
