@@ -3,7 +3,8 @@ import Lottie from 'react-lottie';
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import covidLottie from '../../../assets/lottieFiles/covidLottie.json';
 import nextQuestionLottie from '../../../assets/lottieFiles/nextQuestionLottie.json';
-import { Grid, Typography, Button, makeStyles } from '@material-ui/core';
+import arrowLottie from '../../../assets/lottieFiles/arrowLottie.json';
+import { Grid, Typography, Button, makeStyles, Container, Box } from '@material-ui/core';
 import ReplayIcon from '@material-ui/icons/Replay';
 import ReplyAllIcon from '@material-ui/icons/ReplyAll';
 import QuestionaireForm from './QuestionaireForm/QuestionaireForm';
@@ -19,7 +20,10 @@ const useStyles = makeStyles({
 		width: '100%',
 		padding: '6px 16px'
 	},
-	lottieMargin: { margin: 'auto', marginBottom: '1rem', marginTop: '1rem', maxWidth: '800px' }
+	lottieMargin: { margin: 'auto', marginBottom: '1rem', marginTop: '1rem', maxWidth: '800px' },
+	textFontFamily: {
+		fontFamily: 'Rajdhani'
+	}
 });
 
 const MainPage = () => {
@@ -49,6 +53,15 @@ const MainPage = () => {
 		loop: true,
 		autoplay: true,
 		animationData: covidLottie,
+		rendererSettings: {
+			preserveAspectRatio: 'xMidYMid slice'
+		}
+	};
+
+	const defaultOptions3 = {
+		loop: true,
+		autoplay: true,
+		animationData: arrowLottie,
 		rendererSettings: {
 			preserveAspectRatio: 'xMidYMid slice'
 		}
@@ -144,27 +157,56 @@ const MainPage = () => {
 							<Grid
 								component="section"
 								container
-								justify={hasJoker && !userAnswer ? 'space-around' : 'center'}
+								justify={
+									hasJoker && !userAnswer && !isTimeOut
+										? 'space-around'
+										: 'center'
+								}
 								alignItems="center"
 								className={classes.lottieMargin}>
 								<Grid item>
 									<Lottie options={defaultOptions2} height={40} width={80} />
 								</Grid>
+
 								<Grid item>
 									{/* check some condition to show Joker Button */}
-									{!loading && !errorMessage && !userAnswer && hasJoker && (
-										<Button
-											onClick={handleClick}
-											variant="contained"
-											color="primary"
-											style={{ width: '50%' }}>
-											<Typography
-												variant="button"
-												className={classes.buttonText}>
-												50:50
-											</Typography>
-										</Button>
-									)}
+									{!loading &&
+										!errorMessage &&
+										!userAnswer &&
+										hasJoker &&
+										!isTimeOut && (
+											<Grid item container>
+												<Grid item>
+													<Button
+														onClick={handleClick}
+														variant="contained"
+														color="primary"
+														style={{ width: '50%' }}>
+														<Typography
+															variant="button"
+															className={classes.buttonText}>
+															50:50
+														</Typography>
+													</Button>
+												</Grid>
+												<Grid item>
+													<Box ml={-1} pl={0}>
+														<Typography
+															variant="overline"
+															className={classes.textFontFamily}>
+															Joker
+														</Typography>
+													</Box>
+													<Box ml={-4}>
+														<Lottie
+															options={defaultOptions3}
+															height={20}
+															width={40}
+														/>
+													</Box>
+												</Grid>
+											</Grid>
+										)}
 								</Grid>
 							</Grid>
 						</>
